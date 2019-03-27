@@ -11,5 +11,8 @@ build/
 doc/api/
 
 # Remove IntelliJ files
-
 .idea/
+
+# Do not track local files
+
+local/
