@@ -36,22 +36,42 @@ main() async {
 */
 
 
-Map<HTML.Node, double> _storedScores;
+/// Rules for readability scoring based on github.com/mozilla/readablility:
+///  - Only check for certain tags
+///  - Large base score based on class
+///  - Some points based on the tag
+///  - 0 point if the paragraph has less than 25 characters (*)
+///  - +1 point as base (*)
+///  - +1 point for every comma in this paragraph (*)
+///  - +1 point for every 100 characters, up to 3 points
+///  - +Sum of every direct child's score
+///  - +Sum/2 of every second child's score
+///  - +Sum/(3*level) of every child's score at level deep
+///  - *(1 - link_density) as a final step
 
-/// Rules for scoring:
-///  - +1 point for every inner character in TEXT_NODEs
-///  - +50% of each child's score
-double score(HTML.Node node) {
-  if(_storedScores.containsKey(node)) return _storedScores[node];
-  var s = 0.0; // score
-  if(node.nodeType == HTML.Node.TEXT_NODE) {
-    s += node.text.length;
-  }
-  for (final child in node.nodes) {
-    s += 0.5 * score(child);
+Map<HTML.Element, double> _readScores;
+
+double readabilityScore(HTML.Element node) {
+  // calculate node only one time
+  if(_readScores.containsKey(node)) return _readScores[node];
+  // call function recursively
+  for(var child in node.children) {
+    readabilityScore(child);
   }
 
-  return _storedScores[node] = s;
+  const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
+
+  if(!readable_tags.contains(node.localName)) {
+    return _readScores[node] = 0;
+  }
+  if(node.text.length < 25) {
+    return _readScores[node] = 0;
+  }
+
+  double score = 1;
+  score += node.text.split(',').length;
+
+  return _readScores[node] = score;
 }
 
 
