@@ -1,6 +1,3 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
 library MainTextHTML;
 
 export 'src/MainTextHTML_base.dart';
@@ -17,6 +14,7 @@ Element nodes can have element children. Node list will have text nodes also.
 Text nodes will include every whitespace.
  */
 
+/*
 main() async {
   //*
   var htmlFile = File('local/index.html');
@@ -35,6 +33,7 @@ main() async {
   */
   _walkNodes(document);
 }
+*/
 
 
 Map<HTML.Node, double> _storedScores;
@@ -55,7 +54,9 @@ double score(HTML.Node node) {
   return _storedScores[node] = s;
 }
 
-const Map<int, String> _nodeTypeName = {
+
+
+const Map<int, String> nodeTypeName = {
   HTML.Node.ATTRIBUTE_NODE: 'ATTRIBUTTE_NODE',
   HTML.Node.CDATA_SECTION_NODE: 'CDATA_SECTION_NODE',
   HTML.Node.COMMENT_NODE: 'COMMENT_NODE',
@@ -69,6 +70,8 @@ const Map<int, String> _nodeTypeName = {
   HTML.Node.PROCESSING_INSTRUCTION_NODE: 'PROCESSING_INSTRUCTION_NODE',
   HTML.Node.TEXT_NODE: 'TEXT_NODE',
 };
+
+/*
 int cnt = 0;
 _walkNodes(HTML.Node node, [int parent = 0]) {
   int me = ++cnt;
@@ -82,3 +85,4 @@ _walkNodes(HTML.Node node, [int parent = 0]) {
     _walkNodes(child, me);
   }
 }
+*/
