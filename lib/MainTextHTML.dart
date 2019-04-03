@@ -3,10 +3,8 @@ library MainTextHTML;
 export 'src/MainTextHTML_base.dart';
 
 import 'dart:core';
-import 'dart:io';
 import 'dart:math';
 import 'package:html/dom.dart' as HTML;
-import 'package:html/parser.dart' as HTMLParser;
 
 /*
 Root is the document.
@@ -18,8 +16,6 @@ Text nodes will include every whitespace.
 /*
 main() async {
   //*
-  var htmlFile = File('local/index.html');
-  var document = HTMLParser.parse(await htmlFile.readAsBytes());
   // *///
   /*
   var htmlFile = '''
@@ -50,22 +46,16 @@ main() async {
 ///  - +Sum/(3*level) of every child's score at level deep (*)
 ///  - *(1 - link_density) as a final step (*)
 
-Map<HTML.Element, double> _readScores;
-
 double readabilityScore(HTML.Element node) {
   // calculate node only one time
   if(_readScores.containsKey(node)) return _readScores[node];
-  // call function recursively
-  for(var child in node.children) {
-    readabilityScore(child);
-  }
 
   const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
 
   if(!readable_tags.contains(node.localName)) {
     return _readScores[node] = 0;
   }
-  if(node.text.length < 25) {
+  if(node.innerHtml.length < 25) {
     return _readScores[node] = 0;
   }
 
@@ -74,18 +64,28 @@ double readabilityScore(HTML.Element node) {
 
   score += min((node.text.length / 100).floorToDouble(), 3.0);
 
-  int link_num = 0;
-  for(final elem in node.children) {
-    if(elem.localName == 'a') {
-      link_num += 1;
+  if(node.children.isNotEmpty) {
+    int link_num = 0;
+    for (final elem in node.children) {
+      if (elem.localName == 'a') {
+        link_num += 1;
+      }
     }
+    final link_density = link_num / node.children.length;
+    score *= (1 - link_density);
   }
-  final link_density = node.children.length / link_num;
-  score *= (1-link_density);
 
+  _readScores[node] = score;
+
+  // call function recursively
+  for(var child in node.children) {
+    readabilityScore(child);
+  }
+
+  // send score up
   int level = 1;
   var cnode = node.parent;
-  while(cnode != null) {
+  while(cnode != null && _readScores[cnode] != null) {
     if(1 == level) {
       _readScores[cnode] += score;
     } else if (2 == level) {
@@ -98,6 +98,43 @@ double readabilityScore(HTML.Element node) {
   }
   
   return _readScores[node] = score;
+}
+
+final _readScores = Map<HTML.Element, double>();
+
+HTML.Element highestScoringElement(HTML.Element root) {
+  var high = root;
+  readabilityScore(root);
+  for(final child in root.children) {
+    final highestChild = highestScoringElement(child);
+    if(readabilityScore(highestChild) > readabilityScore(high)) {
+      high = highestChild;
+    }
+  }
+  return high;
+}
+
+double scoreChange(HTML.Element elem) {
+  double score = readabilityScore(elem);
+  double highChildScore = 0;
+  for(final child in elem.children) {
+    if(readabilityScore(child) > highChildScore) {
+      highChildScore = readabilityScore(child);
+    }
+  }
+  return score - highChildScore;
+}
+
+HTML.Element highestChangeElement(HTML.Element root) {
+  var high = root;
+  readabilityScore(root);
+  for(final child in root.children) {
+    final highestChild = highestScoringElement(child);
+    if(scoreChange(highestChild) > scoreChange(high)) {
+      high = highestChild;
+    }
+  }
+  return high;
 }
 
 
