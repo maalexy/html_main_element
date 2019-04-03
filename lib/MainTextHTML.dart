@@ -4,6 +4,7 @@ export 'src/MainTextHTML_base.dart';
 
 import 'dart:core';
 import 'dart:io';
+import 'dart:math';
 import 'package:html/dom.dart' as HTML;
 import 'package:html/parser.dart' as HTMLParser;
 
@@ -37,17 +38,17 @@ main() async {
 
 
 /// Rules for readability scoring based on github.com/mozilla/readablility:
-///  - Only check for certain tags
+///  - Only check for certain tags (?)
 ///  - Large base score based on class
 ///  - Some points based on the tag
 ///  - 0 point if the paragraph has less than 25 characters (*)
 ///  - +1 point as base (*)
 ///  - +1 point for every comma in this paragraph (*)
-///  - +1 point for every 100 characters, up to 3 points
-///  - +Sum of every direct child's score
-///  - +Sum/2 of every second child's score
-///  - +Sum/(3*level) of every child's score at level deep
-///  - *(1 - link_density) as a final step
+///  - +1 point for every 100 characters, up to 3 points (*)
+///  - +Sum of every direct child's score (*)
+///  - +Sum/2 of every second child's score (*)
+///  - +Sum/(3*level) of every child's score at level deep (*)
+///  - *(1 - link_density) as a final step (*)
 
 Map<HTML.Element, double> _readScores;
 
@@ -71,6 +72,31 @@ double readabilityScore(HTML.Element node) {
   double score = 1;
   score += node.text.split(',').length;
 
+  score += min((node.text.length / 100).floorToDouble(), 3.0);
+
+  int link_num = 0;
+  for(final elem in node.children) {
+    if(elem.localName == 'a') {
+      link_num += 1;
+    }
+  }
+  final link_density = node.children.length / link_num;
+  score *= (1-link_density);
+
+  int level = 1;
+  var cnode = node.parent;
+  while(cnode != null) {
+    if(1 == level) {
+      _readScores[cnode] += score;
+    } else if (2 == level) {
+      _readScores[cnode] += score / 2;
+    } else {
+      _readScores[cnode] += score / (3 * level);
+    }
+    cnode = cnode.parent;
+    level += 1;
+  }
+  
   return _readScores[node] = score;
 }
 
