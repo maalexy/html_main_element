@@ -1,16 +1,17 @@
 import 'package:html/dom.dart';
 
 print_tree(Map<Element, dynamic> tree, Element root) {
-  _print_child(tree, root, 0);
+  print(_string_child(tree, root, 0));
 }
 
-_print_child(Map<Element, dynamic> tree, Element elem, int depth) {
+String _string_child(Map<Element, dynamic> tree, Element elem, int depth) {
   var par = '';
   for(int i = 0; i < depth; ++i) {
-    par += ' '; // space character
+    par += '#'; // indent character
   }
-  print('$par$elem: ${tree[elem]}');
+  par += '$par$elem: ${tree[elem]}\n';
   for(final child in elem.children) {
-    _print_child(tree, child, depth + 1);
+    par += _string_child(tree, child, depth + 1);
   }
+  return par;
 }
