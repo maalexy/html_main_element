@@ -52,17 +52,39 @@ double readabilityScore(HTML.Element node) {
 
   const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
 
+
+  final positiveClasses = RegExp(
+    '/article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story/i');
+  final negativeClasses = RegExp(
+      '/hidden|^hid\$| hid\$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget/i');
+
   if(!readable_tags.contains(node.localName)) {
     return _readScores[node] = 0;
   }
-  if(node.innerHtml.length < 25) {
+
+  var intexts = "";
+  for(final cnode in node.nodes) {
+    if(cnode.nodeType == HTML.Node.TEXT_NODE) {
+      intexts += cnode.text;
+    }
+  }
+
+  if(intexts.length < 25) {
     return _readScores[node] = 0;
   }
 
   double score = 1;
-  score += node.text.split(',').length;
+  for(final cls in node.classes) {
+    if(positiveClasses.hasMatch(cls)) {
+      score += 25;
+    }
+    if(negativeClasses.hasMatch(cls)) {
+      score -= 25;
+    }
+  }
+  score += intexts.split(',').length;
 
-  score += min((node.text.length / 100).floorToDouble(), 3.0);
+  score += min((intexts.length / 100).floorToDouble(), 3.0);
 
   if(node.children.isNotEmpty) {
     int link_num = 0;
