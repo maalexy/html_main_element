@@ -46,12 +46,20 @@ main() async {
 ///  - +Sum/(3*level) of every child's score at level deep (*)
 ///  - *(1 - link_density) as a final step (*)
 
+Map<HTML.Element, double> calcReadabilityScore(HTML.Element root) {
+  final scores = Map<HTML.Element, double>();
+  scores[root] = readabilityScore(root);
+  for(final child in root.children) {
+    scores.addAll(calcReadabilityScore(child));
+  }
+  return readScores;
+}
+
 double readabilityScore(HTML.Element node) {
   // calculate node only one time
   if(readScores.containsKey(node)) return readScores[node];
 
   const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
-
 
   final positiveClasses = RegExp(
     '/article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story/i');

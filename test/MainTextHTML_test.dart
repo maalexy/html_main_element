@@ -12,6 +12,7 @@ void main() {
     test('local/index.html high score test', () async {
       final htmlFile = File('test/local/index.html');
       final document = HTMLParser.parse(await htmlFile.readAsBytes());
+      calcReadabilityScore(document.documentElement);
       final highScoreElem = highestScoringElement(document.documentElement);
       final score = readabilityScore(highScoreElem);
       print_tree(readScores, document.documentElement);
