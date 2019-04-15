@@ -48,7 +48,7 @@ main() async {
 
 double readabilityScore(HTML.Element node) {
   // calculate node only one time
-  if(_readScores.containsKey(node)) return _readScores[node];
+  if(readScores.containsKey(node)) return readScores[node];
 
   const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
 
@@ -59,18 +59,18 @@ double readabilityScore(HTML.Element node) {
       '/hidden|^hid\$| hid\$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget/i');
 
   if(!readable_tags.contains(node.localName)) {
-    return _readScores[node] = 0;
+    return readScores[node] = 0;
   }
 
   var intexts = "";
   for(final cnode in node.nodes) {
     if(cnode.nodeType == HTML.Node.TEXT_NODE) {
-      intexts += cnode.text;
+      intexts += cnode.text.trim();
     }
   }
 
   if(intexts.length < 25) {
-    return _readScores[node] = 0;
+    return readScores[node] = 0;
   }
 
   double score = 1;
@@ -97,7 +97,7 @@ double readabilityScore(HTML.Element node) {
     score *= (1 - link_density);
   }
 
-  _readScores[node] = score;
+  readScores[node] = score;
 
   // call function recursively
   for(var child in node.children) {
@@ -107,22 +107,22 @@ double readabilityScore(HTML.Element node) {
   // send score up
   int level = 1;
   var cnode = node.parent;
-  while(cnode != null && _readScores[cnode] != null) {
+  while(cnode != null && readScores[cnode] != null) {
     if(1 == level) {
-      _readScores[cnode] += score;
+      readScores[cnode] += score;
     } else if (2 == level) {
-      _readScores[cnode] += score / 2;
+      readScores[cnode] += score / 2;
     } else {
-      _readScores[cnode] += score / (3 * level);
+      readScores[cnode] += score / (3 * level);
     }
     cnode = cnode.parent;
     level += 1;
   }
   
-  return _readScores[node] = score;
+  return readScores[node] = score;
 }
 
-final _readScores = Map<HTML.Element, double>();
+final readScores = Map<HTML.Element, double>();
 
 HTML.Element highestScoringElement(HTML.Element root) {
   var high = root;

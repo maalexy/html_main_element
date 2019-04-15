@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:MainTextHTML/src/print_tree.dart';
 import 'package:html/parser.dart' as HTMLParser;
 import 'package:MainTextHTML/MainTextHTML.dart';
 import 'package:test/test.dart';
@@ -13,9 +14,11 @@ void main() {
       final document = HTMLParser.parse(await htmlFile.readAsBytes());
       final highScoreElem = highestScoringElement(document.documentElement);
       final score = readabilityScore(highScoreElem);
+      print_tree(readScores, document.documentElement);
       print('$highScoreElem, ${score}, ${highScoreElem.hashCode}');
       print('${highScoreElem.outerHtml}');
-    }); // *///
+    });
+    /*///
     test('local/index.html diff score test', () async {
       final htmlFile = File('test/local/index.html');
       final document = HTMLParser.parse(await htmlFile.readAsBytes());
@@ -23,6 +26,6 @@ void main() {
       final change = scoreChange(highChangeElem);
       print('$highChangeElem, ${change}, ${highChangeElem.hashCode}');
       print('${highChangeElem.outerHtml}');
-    });
+    }); // */ //
   });
 }
