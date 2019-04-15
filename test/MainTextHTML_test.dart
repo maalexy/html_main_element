@@ -18,6 +18,15 @@ void main() {
       print('$highScoreElem, ${score}, ${highScoreElem.hashCode}');
       print('${highScoreElem.outerHtml}');
     });
+    test('local/origo.html high score test', () async {
+      final htmlFile = File('test/local/origo.html');
+      final document = HTMLParser.parse(await htmlFile.readAsBytes());
+      final highScoreElem = highestScoringElement(document.documentElement);
+      final score = readabilityScore(highScoreElem);
+      print_tree(readScores, document.documentElement);
+      print('$highScoreElem, ${score}, ${highScoreElem.hashCode}');
+      print('${highScoreElem.outerHtml}');
+    });
     /*///
     test('local/index.html diff score test', () async {
       final htmlFile = File('test/local/index.html');
