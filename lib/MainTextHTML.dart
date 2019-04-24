@@ -32,7 +32,6 @@ main() async {
 }
 */
 
-
 /// Rules for readability scoring based on github.com/mozilla/readablility:
 ///  - Only check for certain tags (?)
 ///  - Large base score based on class
@@ -46,53 +45,104 @@ main() async {
 ///  - +Sum/(3*level) of every child's score at level deep (*)
 ///  - *(1 - link_density) as a final step (*)
 
-Map<HTML.Element, double> readabilityScore(HTML.Element root) {
-  final scoreMap = calcReadabilityScore(root);
+Map<HTML.Element, double> readabilityScore(HTML.Element root, [readabilityConfig conf]) {
+  final scoreMap = calcReadabilityScore(root, conf);
   propagateScore(root, scoreMap);
   return scoreMap;
 }
 
-Map<HTML.Element, double> calcReadabilityScore(HTML.Element root) {
+Map<HTML.Element, double> calcReadabilityScore(HTML.Element root, [readabilityConfig conf]) {
   var scoreMap = Map<HTML.Element, double>();
-  final rscore = localReadabilityScore(root); // root score
+  final rscore =
+      localReadabilityScore(root, conf); // root score
   scoreMap[root] = rscore;
-  for(final child in root.children) { // call for all children
+  for (final child in root.children) {
+    // call for all children
     final childMap = calcReadabilityScore(child);
     scoreMap.addAll(childMap);
   }
   return scoreMap;
 }
 
-double localReadabilityScore(HTML.Element node) {
+class readabilityConfig {
+  List<String> readable_tags;
+  List<String> positiveClasses;
+  List<String> negativeClasses;
+}
 
-  const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
+final defaultReadabilityConfig = readabilityConfig()
+  ..readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre']
+  ..positiveClasses = [
+    'article',
+    'body',
+    'content',
+    'entry',
+    'hentry',
+    'h-entry',
+    'main',
+    'page',
+    'pagination',
+    'post',
+    'text',
+    'blog',
+    'story'
+  ]
+  ..negativeClasses = [
+    'hidden',
+    '^hid\$',
+    ' hid\$',
+    ' hid ',
+    '^hid ',
+    'banner',
+    'combx',
+    'comment',
+    'com-',
+    'contact',
+    'foot',
+    'footer',
+    'footnote',
+    'gdpr',
+    'masthead',
+    'media',
+    'meta',
+    'outbrain',
+    'promo',
+    'related',
+    'scroll',
+    'share',
+    'shoutbox',
+    'sidebar',
+    'skyscraper',
+    'sponsor',
+    'shopping',
+    'tags',
+    'tool',
+    'widget'
+  ];
 
-  final positiveClasses = RegExp(
-    '/article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story/i');
-  final negativeClasses = RegExp(
-      '/hidden|^hid\$| hid\$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget/i');
-
-  if(!readable_tags.contains(node.localName)) {
+double localReadabilityScore(HTML.Element node, [readabilityConfig conf]) {
+  conf ??= defaultReadabilityConfig;
+  if (!conf.readable_tags.contains(node.localName)) {
     return 0;
   }
 
   var intexts = "";
-  for(final cnode in node.nodes) {
-    if(cnode.nodeType == HTML.Node.TEXT_NODE) {
+  for (final cnode in node.nodes) {
+    if (cnode.nodeType == HTML.Node.TEXT_NODE) {
       intexts += cnode.text.trim();
     }
   }
 
-  if(intexts.length < 25) {
+  if (intexts.length < 25) {
     return 0;
   }
 
   double score = 1;
-  for(final cls in node.classes) {
-    if(positiveClasses.hasMatch(cls)) {
+  for (final cls in node.classes) {
+    if (conf.positiveClasses.contains(cls)) {
       score += 25;
     }
-    if(negativeClasses.hasMatch(cls)) {
+    if (conf.negativeClasses.contains(cls)) {
       score -= 25;
     }
   }
@@ -100,7 +150,7 @@ double localReadabilityScore(HTML.Element node) {
 
   score += min((intexts.length / 100).floorToDouble(), 3.0);
 
-  if(node.children.isNotEmpty) {
+  if (node.children.isNotEmpty) {
     int link_num = 0;
     for (final elem in node.children) {
       if (elem.localName == 'a') {
@@ -117,12 +167,11 @@ double localReadabilityScore(HTML.Element node) {
 /* First propagate THEN call child. somehow this is a better order.
  */
 propagateScore(HTML.Element node, Map<HTML.Element, double> scoreMap) {
-
   // Send score up
   final score = scoreMap[node];
   int level = 1;
   var cnode = node.parent;
-  while(cnode != null && scoreMap.containsKey(cnode)) {
+  while (cnode != null && scoreMap.containsKey(cnode)) {
     if (1 == level) {
       scoreMap[cnode] += score;
     } else if (2 == level) {
@@ -137,24 +186,25 @@ propagateScore(HTML.Element node, Map<HTML.Element, double> scoreMap) {
   }
 
   // Call recursively
-  for(final child in node.children) {
+  for (final child in node.children) {
     propagateScore(child, scoreMap);
   }
 
   return scoreMap;
 }
 
-
 final readScores = Map<HTML.Element, double>();
 
 HTML.Element highestScoringElement(Map<HTML.Element, double> scoreMap) {
-  return scoreMap.entries.reduce((val, elem) => val.value > elem.value ? val : elem).key;
+  return scoreMap.entries
+      .reduce((val, elem) => val.value > elem.value ? val : elem)
+      .key;
 }
 
 Map<HTML.Element, double> scoreChange(Map<HTML.Element, double> scoreMap) {
   final scoreDiff = Map<HTML.Element, double>();
-  for(final entry in scoreMap.entries) {
-    if(entry.key.parent != null) {
+  for (final entry in scoreMap.entries) {
+    if (entry.key.parent != null) {
       scoreDiff[entry.key] = entry.value - scoreMap[entry.key.parent];
     } else {
       scoreDiff[entry.key] = entry.value;
@@ -162,8 +212,6 @@ Map<HTML.Element, double> scoreChange(Map<HTML.Element, double> scoreMap) {
   }
   return scoreDiff;
 }
-
-
 
 const Map<int, String> nodeTypeName = {
   HTML.Node.ATTRIBUTE_NODE: 'ATTRIBUTTE_NODE',
