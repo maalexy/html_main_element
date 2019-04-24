@@ -46,18 +46,24 @@ main() async {
 ///  - +Sum/(3*level) of every child's score at level deep (*)
 ///  - *(1 - link_density) as a final step (*)
 
-Map<HTML.Element, double> calcReadabilityScore(HTML.Element root) {
-  final scores = Map<HTML.Element, double>();
-  scores[root] = readabilityScore(root);
-  for(final child in root.children) {
-    scores.addAll(calcReadabilityScore(child));
-  }
-  return readScores;
+Map<HTML.Element, double> readabilityScore(HTML.Element root) {
+  final scoreMap = calcReadabilityScore(root);
+  propagateScore(root, scoreMap);
+  return scoreMap;
 }
 
-double readabilityScore(HTML.Element node) {
-  // calculate node only one time
-  if(readScores.containsKey(node)) return readScores[node];
+Map<HTML.Element, double> calcReadabilityScore(HTML.Element root) {
+  var scoreMap = Map<HTML.Element, double>();
+  final rscore = localReadabilityScore(root); // root score
+  scoreMap[root] = rscore;
+  for(final child in root.children) { // call for all children
+    final childMap = calcReadabilityScore(child);
+    scoreMap.addAll(childMap);
+  }
+  return scoreMap;
+}
+
+double localReadabilityScore(HTML.Element node) {
 
   const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
 
@@ -67,7 +73,7 @@ double readabilityScore(HTML.Element node) {
       '/hidden|^hid\$| hid\$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget/i');
 
   if(!readable_tags.contains(node.localName)) {
-    return readScores[node] = 0;
+    return 0;
   }
 
   var intexts = "";
@@ -78,7 +84,7 @@ double readabilityScore(HTML.Element node) {
   }
 
   if(intexts.length < 25) {
-    return readScores[node] = 0;
+    return 0;
   }
 
   double score = 1;
@@ -105,66 +111,56 @@ double readabilityScore(HTML.Element node) {
     score *= (1 - link_density);
   }
 
-  readScores[node] = score;
+  return score;
+}
 
-  // call function recursively
-  for(var child in node.children) {
-    readabilityScore(child);
-  }
+/* First propagate THEN call child. somehow this is a better order.
+ */
+propagateScore(HTML.Element node, Map<HTML.Element, double> scoreMap) {
 
-  // send score up
+  // Send score up
+  final score = scoreMap[node];
   int level = 1;
   var cnode = node.parent;
-  while(cnode != null && readScores[cnode] != null) {
-    if(1 == level) {
-      readScores[cnode] += score;
+  while(cnode != null && scoreMap.containsKey(cnode)) {
+    if (1 == level) {
+      scoreMap[cnode] += score;
     } else if (2 == level) {
-      readScores[cnode] += score / 2;
+      scoreMap[cnode] += score / 2;
     } else {
-      readScores[cnode] += score / (3 * level);
+      scoreMap[cnode] += score / (3 * level);
     }
+    print(node);
+    print(cnode);
     cnode = cnode.parent;
     level += 1;
   }
-  
-  return readScores[node] = score;
+
+  // Call recursively
+  for(final child in node.children) {
+    propagateScore(child, scoreMap);
+  }
+
+  return scoreMap;
 }
+
 
 final readScores = Map<HTML.Element, double>();
 
-HTML.Element highestScoringElement(HTML.Element root) {
-  var high = root;
-  readabilityScore(root);
-  for(final child in root.children) {
-    final highestChild = highestScoringElement(child);
-    if(readabilityScore(highestChild) > readabilityScore(high)) {
-      high = highestChild;
-    }
-  }
-  return high;
+HTML.Element highestScoringElement(Map<HTML.Element, double> scoreMap) {
+  return scoreMap.entries.reduce((val, elem) => val.value > elem.value ? val : elem).key;
 }
 
-double scoreChange(HTML.Element elem) {
-  double score = readabilityScore(elem);
-  double highChildScore = 0;
-  for(final child in elem.children) {
-    if(readabilityScore(child) > highChildScore) {
-      highChildScore = readabilityScore(child);
+Map<HTML.Element, double> scoreChange(Map<HTML.Element, double> scoreMap) {
+  final scoreDiff = Map<HTML.Element, double>();
+  for(final entry in scoreMap.entries) {
+    if(entry.key.parent != null) {
+      scoreDiff[entry.key] = entry.value - scoreMap[entry.key.parent];
+    } else {
+      scoreDiff[entry.key] = entry.value;
     }
   }
-  return score - highChildScore;
-}
-
-HTML.Element highestChangeElement(HTML.Element root) {
-  var high = root;
-  readabilityScore(root);
-  for(final child in root.children) {
-    final highestChild = highestScoringElement(child);
-    if(scoreChange(highestChild) > scoreChange(high)) {
-      high = highestChild;
-    }
-  }
-  return high;
+  return scoreDiff;
 }
 
 
