@@ -133,6 +133,8 @@ double localReadabilityScore(HTML.Element node, [readabilityConfig conf]) {
     }
   }
 
+  intexts = intexts.replaceAll(RegExp('\\s+'), ' ').trim();
+
   if (intexts.length < 25) {
     return 0;
   }
