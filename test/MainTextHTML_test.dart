@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:html/parser.dart' as HTMLParser;
+import 'package:html/parser.dart' as html_parser;
 import 'package:MainTextHTML/MainTextHTML.dart';
 import 'package:test/test.dart';
 
@@ -10,20 +10,20 @@ void main() {
     // *///
     test('local/index.html high score test', () async {
       final htmlFile = File('test/local/index.html');
-      final document = HTMLParser.parse(await htmlFile.readAsBytes());
+      final document = html_parser.parse(await htmlFile.readAsBytes());
       final scoreMap = readabilityScore(document.documentElement);
       final bestElem = highestScoringElement(scoreMap);
-      //print_tree(scoreMap, document.documentElement);
+      //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');
       print('${bestElem.outerHtml}');
       assert(bestElem.classes.contains("cikk-torzs"));
     });
     test('local/origo.html high score test', () async {
       final htmlFile = File('test/local/origo.html');
-      final document = HTMLParser.parse(await htmlFile.readAsBytes());
+      final document = html_parser.parse(await htmlFile.readAsBytes());
       final scoreMap = readabilityScore(document.documentElement);
       final bestElem = highestScoringElement(scoreMap);
-      //print_tree(scoreMap, document.documentElement);
+      //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');
       print('${bestElem.outerHtml}');
       assert(bestElem.id.contains("article-text"));

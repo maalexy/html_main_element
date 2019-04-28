@@ -1,10 +1,10 @@
 library MainTextHTML;
 
-export 'src/MainTextHTML_base.dart';
-
 import 'dart:core';
 import 'dart:math';
-import 'package:html/dom.dart' as HTML;
+import 'package:html/dom.dart' as html;
+
+export 'src/MainTextHTML_base.dart';
 
 /*
 Root is the document.
@@ -45,16 +45,17 @@ main() async {
 ///  - +Sum/(3*level) of every child's score at level deep (*)
 ///  - *(1 - link_density) as a final step (*)
 
-Map<HTML.Element, double> readabilityScore(HTML.Element root, [readabilityConfig conf]) {
+Map<html.Element, double> readabilityScore(html.Element root,
+    [ReadabilityConfig conf]) {
   final scoreMap = calcReadabilityScore(root, conf);
   propagateScore(root, scoreMap);
   return scoreMap;
 }
 
-Map<HTML.Element, double> calcReadabilityScore(HTML.Element root, [readabilityConfig conf]) {
-  var scoreMap = Map<HTML.Element, double>();
-  final rscore =
-      localReadabilityScore(root, conf); // root score
+Map<html.Element, double> calcReadabilityScore(html.Element root,
+    [ReadabilityConfig conf]) {
+  var scoreMap = <html.Element, double>{};
+  final rscore = localReadabilityScore(root, conf); // root score
   scoreMap[root] = rscore;
   for (final child in root.children) {
     // call for all children
@@ -64,14 +65,14 @@ Map<HTML.Element, double> calcReadabilityScore(HTML.Element root, [readabilityCo
   return scoreMap;
 }
 
-class readabilityConfig {
-  List<String> readable_tags;
+class ReadabilityConfig {
+  List<String> readableTags;
   List<String> positiveClasses;
   List<String> negativeClasses;
 }
 
-final defaultReadabilityConfig = readabilityConfig()
-  ..readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre']
+final ReadabilityConfig defaultReadabilityConfig = ReadabilityConfig()
+  ..readableTags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre']
   ..positiveClasses = [
     'article',
     'body',
@@ -120,15 +121,15 @@ final defaultReadabilityConfig = readabilityConfig()
     'widget'
   ];
 
-double localReadabilityScore(HTML.Element node, [readabilityConfig conf]) {
+double localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
   conf ??= defaultReadabilityConfig;
-  if (!conf.readable_tags.contains(node.localName)) {
+  if (!conf.readableTags.contains(node.localName)) {
     return 0;
   }
 
   var intexts = "";
   for (final cnode in node.nodes) {
-    if (cnode.nodeType == HTML.Node.TEXT_NODE) {
+    if (cnode.nodeType == html.Node.TEXT_NODE) {
       intexts += cnode.text.trim();
     }
   }
@@ -139,7 +140,7 @@ double localReadabilityScore(HTML.Element node, [readabilityConfig conf]) {
     return 0;
   }
 
-  double score = 1;
+  var score = 1.0;
   for (final cls in node.classes) {
     if (conf.positiveClasses.contains(cls)) {
       score += 25;
@@ -153,14 +154,14 @@ double localReadabilityScore(HTML.Element node, [readabilityConfig conf]) {
   score += min((intexts.length / 100).floorToDouble(), 3.0);
 
   if (node.children.isNotEmpty) {
-    int link_num = 0;
+    var linkNum = 0;
     for (final elem in node.children) {
       if (elem.localName == 'a') {
-        link_num += 1;
+        linkNum += 1;
       }
     }
-    final link_density = link_num / node.children.length;
-    score *= (1 - link_density);
+    final linkDensity = linkNum / node.children.length;
+    score *= (1 - linkDensity);
   }
 
   return score;
@@ -168,10 +169,11 @@ double localReadabilityScore(HTML.Element node, [readabilityConfig conf]) {
 
 /* First propagate THEN call child. somehow this is a better order.
  */
-propagateScore(HTML.Element node, Map<HTML.Element, double> scoreMap) {
+Map<html.Element, double> propagateScore(
+    html.Element node, Map<html.Element, double> scoreMap) {
   // Send score up
   final score = scoreMap[node];
-  int level = 1;
+  var level = 1;
   var cnode = node.parent;
   while (cnode != null && scoreMap.containsKey(cnode)) {
     if (1 == level) {
@@ -195,16 +197,14 @@ propagateScore(HTML.Element node, Map<HTML.Element, double> scoreMap) {
   return scoreMap;
 }
 
-final readScores = Map<HTML.Element, double>();
-
-HTML.Element highestScoringElement(Map<HTML.Element, double> scoreMap) {
+html.Element highestScoringElement(Map<html.Element, double> scoreMap) {
   return scoreMap.entries
       .reduce((val, elem) => val.value > elem.value ? val : elem)
       .key;
 }
 
-Map<HTML.Element, double> scoreChange(Map<HTML.Element, double> scoreMap) {
-  final scoreDiff = Map<HTML.Element, double>();
+Map<html.Element, double> scoreChange(Map<html.Element, double> scoreMap) {
+  final scoreDiff = <html.Element, double>{};
   for (final entry in scoreMap.entries) {
     if (entry.key.parent != null) {
       scoreDiff[entry.key] = entry.value - scoreMap[entry.key.parent];
@@ -216,18 +216,18 @@ Map<HTML.Element, double> scoreChange(Map<HTML.Element, double> scoreMap) {
 }
 
 const Map<int, String> nodeTypeName = {
-  HTML.Node.ATTRIBUTE_NODE: 'ATTRIBUTTE_NODE',
-  HTML.Node.CDATA_SECTION_NODE: 'CDATA_SECTION_NODE',
-  HTML.Node.COMMENT_NODE: 'COMMENT_NODE',
-  HTML.Node.DOCUMENT_FRAGMENT_NODE: 'DOCUMENT_FRAGMENT_NODE',
-  HTML.Node.DOCUMENT_NODE: 'DOCUMENT_NODE',
-  HTML.Node.DOCUMENT_TYPE_NODE: 'DOCUMENT_TYPE_NODE',
-  HTML.Node.ELEMENT_NODE: 'ELEMENT_NODE',
-  HTML.Node.ENTITY_NODE: 'ENTITY_NODE',
-  HTML.Node.ENTITY_REFERENCE_NODE: 'ENTITY_REFERENCE_NODE',
-  HTML.Node.NOTATION_NODE: 'NOTATION_NODE',
-  HTML.Node.PROCESSING_INSTRUCTION_NODE: 'PROCESSING_INSTRUCTION_NODE',
-  HTML.Node.TEXT_NODE: 'TEXT_NODE',
+  html.Node.ATTRIBUTE_NODE: 'ATTRIBUTTE_NODE',
+  html.Node.CDATA_SECTION_NODE: 'CDATA_SECTION_NODE',
+  html.Node.COMMENT_NODE: 'COMMENT_NODE',
+  html.Node.DOCUMENT_FRAGMENT_NODE: 'DOCUMENT_FRAGMENT_NODE',
+  html.Node.DOCUMENT_NODE: 'DOCUMENT_NODE',
+  html.Node.DOCUMENT_TYPE_NODE: 'DOCUMENT_TYPE_NODE',
+  html.Node.ELEMENT_NODE: 'ELEMENT_NODE',
+  html.Node.ENTITY_NODE: 'ENTITY_NODE',
+  html.Node.ENTITY_REFERENCE_NODE: 'ENTITY_REFERENCE_NODE',
+  html.Node.NOTATION_NODE: 'NOTATION_NODE',
+  html.Node.PROCESSING_INSTRUCTION_NODE: 'PROCESSING_INSTRUCTION_NODE',
+  html.Node.TEXT_NODE: 'TEXT_NODE',
 };
 
 /*

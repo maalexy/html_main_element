@@ -3,19 +3,19 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:test/test.dart';
 
-_hash_tree(Element x) {
-  final map = Map<Element, int>();
+_hashTree(Element x) {
+  final map = <Element, int>{};
   for(final child in x.children) {
-    map.addAll(_hash_tree(child));
+    map.addAll(_hashTree(child));
   }
   map[x] = x.hashCode;
   return map;
 }
 
-_text_tree(Element x) {
-  final map = Map<Element, String>();
+_textTree(Element x) {
+  final map = <Element, String>{};
   for(final child in x.children) {
-    map.addAll(_text_tree(child));
+    map.addAll(_textTree(child));
   }
   map[x] = x.text;
   return map;
@@ -47,10 +47,10 @@ void main() {
     });
 
     test('Print hashes', () {
-      final hashes = _hash_tree(document.documentElement);
-      print_tree(hashes, document.documentElement);
-      final texts = _text_tree(document.documentElement);
-      print_tree(texts, document.documentElement);
+      final hashes = _hashTree(document.documentElement);
+      printTree(hashes, document.documentElement);
+      final texts = _textTree(document.documentElement);
+      printTree(texts, document.documentElement);
     });
   });
 }
