@@ -12,6 +12,7 @@ Map<html.Element, double> _scoreChange(Map<html.Element, double> scoreMap) {
   return scoreDiff;
 }
 
+/// Maps html.Node.*_NODE integer constants to a string name;
 const Map<int, String> HTML_NODE_TYPE_NAME = {
   html.Node.ATTRIBUTE_NODE: 'ATTRIBUTTE_NODE',
   html.Node.CDATA_SECTION_NODE: 'CDATA_SECTION_NODE',
@@ -27,6 +28,7 @@ const Map<int, String> HTML_NODE_TYPE_NAME = {
   html.Node.TEXT_NODE: 'TEXT_NODE',
 };
 
+/// Returns the html.Element with the highest score from scoreMap
 html.Element highestScoringElement(Map<html.Element, double> scoreMap) {
   return scoreMap.entries
       .reduce((val, elem) => val.value > elem.value ? val : elem)

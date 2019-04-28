@@ -23,6 +23,8 @@ Map<html.Element, double> readabilityScore(html.Element root,
   return scoreMap;
 }
 
+/// Returns the highest scoring element under root
+/// using readability algorithm with conf configuration.
 html.Element readabilityMainElement(html.Element root,
     [ReadabilityConfig conf]) {
   return highestScoringElement(readabilityScore(root, conf));
@@ -41,20 +43,26 @@ Map<html.Element, double> _calcReadabilityScore(html.Element root,
   return scoreMap;
 }
 
+/// Configuration class for readability algorithm
+/// Class and tag names should be lowercase characters
 class ReadabilityConfig {
+  /// List of the readable tags which should be tested by the algorithm
   final List<String> readableTags;
+  /// List of positive classes, where elements should have +25 points.
   final List<String> positiveClasses;
+  /// List of negative classes, where elements should have -25 points.
   final List<String> negativeClasses;
-
+  /// Constructor for the configuration class
   ReadabilityConfig(
       this.readableTags, this.positiveClasses, this.negativeClasses);
+  /// Constant constructor for the configuration class
   const ReadabilityConfig.constant(
       this.readableTags, this.positiveClasses, this.negativeClasses);
 }
 
 double _localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
   conf ??= defaultReadabilityConfig;
-  if (!conf.readableTags.contains(node.localName)) {
+  if (!conf.readableTags.contains(node.localName.toLowerCase())) {
     return 0;
   }
 
@@ -73,10 +81,10 @@ double _localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
 
   var score = 1.0;
   for (final cls in node.classes) {
-    if (conf.positiveClasses.contains(cls)) {
+    if (conf.positiveClasses.contains(cls.toLowerCase())) {
       score += 25;
     }
-    if (conf.negativeClasses.contains(cls)) {
+    if (conf.negativeClasses.contains(cls.toLowerCase())) {
       score -= 25;
     }
   }
@@ -128,6 +136,7 @@ Map<html.Element, double> _propagateScore(
   return scoreMap;
 }
 
+/// Default configuration for the readability algorithm.
 const ReadabilityConfig defaultReadabilityConfig = ReadabilityConfig.constant([
   // readableTags
   'p',
@@ -157,10 +166,7 @@ const ReadabilityConfig defaultReadabilityConfig = ReadabilityConfig.constant([
 ], [
   // negativeClasses
   'hidden',
-  '^hid\$',
-  ' hid\$',
   ' hid ',
-  '^hid ',
   'banner',
   'combx',
   'comment',

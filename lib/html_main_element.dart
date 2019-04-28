@@ -1,6 +1,4 @@
-library MainTextHTML;
-
-import 'package:html/dom.dart' as html;
+library html_main_element;
 
 export 'src/readability.dart';
 

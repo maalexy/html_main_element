@@ -1,5 +1,6 @@
 import 'package:html/dom.dart';
 
+/// Prints html dom with indention based on tree level
 void printTree(Map<Element, dynamic> tree, Element root) {
   print(_stringChild(tree, root, 0));
 }
