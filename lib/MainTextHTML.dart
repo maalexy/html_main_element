@@ -3,9 +3,8 @@ library MainTextHTML;
 export 'src/MainTextHTML_base.dart';
 
 import 'dart:core';
-import 'dart:io';
+import 'dart:math';
 import 'package:html/dom.dart' as HTML;
-import 'package:html/parser.dart' as HTMLParser;
 
 /*
 Root is the document.
@@ -17,8 +16,6 @@ Text nodes will include every whitespace.
 /*
 main() async {
   //*
-  var htmlFile = File('local/index.html');
-  var document = HTMLParser.parse(await htmlFile.readAsBytes());
   // *///
   /*
   var htmlFile = '''
@@ -36,22 +33,130 @@ main() async {
 */
 
 
-Map<HTML.Node, double> _storedScores;
+/// Rules for readability scoring based on github.com/mozilla/readablility:
+///  - Only check for certain tags (?)
+///  - Large base score based on class
+///  - Some points based on the tag
+///  - 0 point if the paragraph has less than 25 characters (*)
+///  - +1 point as base (*)
+///  - +1 point for every comma in this paragraph (*)
+///  - +1 point for every 100 characters, up to 3 points (*)
+///  - +Sum of every direct child's score (*)
+///  - +Sum/2 of every second child's score (*)
+///  - +Sum/(3*level) of every child's score at level deep (*)
+///  - *(1 - link_density) as a final step (*)
 
-/// Rules for scoring:
-///  - +1 point for every inner character in TEXT_NODEs
-///  - +50% of each child's score
-double score(HTML.Node node) {
-  if(_storedScores.containsKey(node)) return _storedScores[node];
-  var s = 0.0; // score
-  if(node.nodeType == HTML.Node.TEXT_NODE) {
-    s += node.text.length;
-  }
-  for (final child in node.nodes) {
-    s += 0.5 * score(child);
+double readabilityScore(HTML.Element node) {
+  // calculate node only one time
+  if(readScores.containsKey(node)) return readScores[node];
+
+  const readable_tags = ['p', 'div', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'pre'];
+
+
+  final positiveClasses = RegExp(
+    '/article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story/i');
+  final negativeClasses = RegExp(
+      '/hidden|^hid\$| hid\$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget/i');
+
+  if(!readable_tags.contains(node.localName)) {
+    return readScores[node] = 0;
   }
 
-  return _storedScores[node] = s;
+  var intexts = "";
+  for(final cnode in node.nodes) {
+    if(cnode.nodeType == HTML.Node.TEXT_NODE) {
+      intexts += cnode.text.trim();
+    }
+  }
+
+  if(intexts.length < 25) {
+    return readScores[node] = 0;
+  }
+
+  double score = 1;
+  for(final cls in node.classes) {
+    if(positiveClasses.hasMatch(cls)) {
+      score += 25;
+    }
+    if(negativeClasses.hasMatch(cls)) {
+      score -= 25;
+    }
+  }
+  score += intexts.split(',').length;
+
+  score += min((intexts.length / 100).floorToDouble(), 3.0);
+
+  if(node.children.isNotEmpty) {
+    int link_num = 0;
+    for (final elem in node.children) {
+      if (elem.localName == 'a') {
+        link_num += 1;
+      }
+    }
+    final link_density = link_num / node.children.length;
+    score *= (1 - link_density);
+  }
+
+  readScores[node] = score;
+
+  // call function recursively
+  for(var child in node.children) {
+    readabilityScore(child);
+  }
+
+  // send score up
+  int level = 1;
+  var cnode = node.parent;
+  while(cnode != null && readScores[cnode] != null) {
+    if(1 == level) {
+      readScores[cnode] += score;
+    } else if (2 == level) {
+      readScores[cnode] += score / 2;
+    } else {
+      readScores[cnode] += score / (3 * level);
+    }
+    cnode = cnode.parent;
+    level += 1;
+  }
+  
+  return readScores[node] = score;
+}
+
+final readScores = Map<HTML.Element, double>();
+
+HTML.Element highestScoringElement(HTML.Element root) {
+  var high = root;
+  readabilityScore(root);
+  for(final child in root.children) {
+    final highestChild = highestScoringElement(child);
+    if(readabilityScore(highestChild) > readabilityScore(high)) {
+      high = highestChild;
+    }
+  }
+  return high;
+}
+
+double scoreChange(HTML.Element elem) {
+  double score = readabilityScore(elem);
+  double highChildScore = 0;
+  for(final child in elem.children) {
+    if(readabilityScore(child) > highChildScore) {
+      highChildScore = readabilityScore(child);
+    }
+  }
+  return score - highChildScore;
+}
+
+HTML.Element highestChangeElement(HTML.Element root) {
+  var high = root;
+  readabilityScore(root);
+  for(final child in root.children) {
+    final highestChild = highestScoringElement(child);
+    if(scoreChange(highestChild) > scoreChange(high)) {
+      high = highestChild;
+    }
+  }
+  return high;
 }
 
 
