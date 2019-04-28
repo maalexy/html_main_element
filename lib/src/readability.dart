@@ -1,25 +1,31 @@
 import 'dart:core';
 import 'dart:math';
 import 'package:html/dom.dart' as html;
+import 'utils.dart';
 
 /// Rules for readability scoring based on github.com/mozilla/readablility:
-///  - Only check for certain tags (?)
-///  - Large base score based on class
-///  - Some points based on the tag
-///  - 0 point if the paragraph has less than 25 characters (*)
-///  - +1 point as base (*)
-///  - +1 point for every comma in this paragraph (*)
-///  - +1 point for every 100 characters, up to 3 points (*)
-///  - +Sum of every direct child's score (*)
-///  - +Sum/2 of every second child's score (*)
-///  - +Sum/(3*level) of every child's score at level deep (*)
-///  - *(1 - link_density) as a final step (*)
+///  - Only check for certain tags (conf.readableTags)
+///  - Large score (+-25) based on class (conf.positiveClasses/negativeClasses)
+///  /* - Some points based on the tag */
+///  - 0 point if the paragraph has less than 25 characters
+///  - +1 point as base
+///  - +1 point for every comma in this paragraph
+///  - +1 point for every 100 characters, up to 3 points
+///  - *(1 - link_density) after these steps
+///  - +Sum of every direct child's score
+///  - +Sum/2 of every second child's score
+///  - +Sum/(3*level) of every child's score at level deep
 
 Map<html.Element, double> readabilityScore(html.Element root,
     [ReadabilityConfig conf]) {
   final scoreMap = _calcReadabilityScore(root, conf);
   _propagateScore(root, scoreMap);
   return scoreMap;
+}
+
+html.Element readabilityMainElement(html.Element root,
+    [ReadabilityConfig conf]) {
+  return highestScoringElement(readabilityScore(root, conf));
 }
 
 Map<html.Element, double> _calcReadabilityScore(html.Element root,
@@ -45,66 +51,6 @@ class ReadabilityConfig {
   const ReadabilityConfig.constant(
       this.readableTags, this.positiveClasses, this.negativeClasses);
 }
-
-const ReadabilityConfig defaultReadabilityConfig = ReadabilityConfig.constant([
-  // readableTags
-  'p',
-  'div',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'td',
-  'pre'
-], [
-  // positiveClasses
-  'article',
-  'body',
-  'content',
-  'entry',
-  'hentry',
-  'h-entry',
-  'main',
-  'page',
-  'pagination',
-  'post',
-  'text',
-  'blog',
-  'story'
-], [
-  // negativeClasses
-  'hidden',
-  '^hid\$',
-  ' hid\$',
-  ' hid ',
-  '^hid ',
-  'banner',
-  'combx',
-  'comment',
-  'com-',
-  'contact',
-  'foot',
-  'footer',
-  'footnote',
-  'gdpr',
-  'masthead',
-  'media',
-  'meta',
-  'outbrain',
-  'promo',
-  'related',
-  'scroll',
-  'share',
-  'shoutbox',
-  'sidebar',
-  'skyscraper',
-  'sponsor',
-  'shopping',
-  'tags',
-  'tool',
-  'widget'
-]);
 
 double _localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
   conf ??= defaultReadabilityConfig;
@@ -181,3 +127,63 @@ Map<html.Element, double> _propagateScore(
 
   return scoreMap;
 }
+
+const ReadabilityConfig defaultReadabilityConfig = ReadabilityConfig.constant([
+  // readableTags
+  'p',
+  'div',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'td',
+  'pre'
+], [
+  // positiveClasses
+  'article',
+  'body',
+  'content',
+  'entry',
+  'hentry',
+  'h-entry',
+  'main',
+  'page',
+  'pagination',
+  'post',
+  'text',
+  'blog',
+  'story'
+], [
+  // negativeClasses
+  'hidden',
+  '^hid\$',
+  ' hid\$',
+  ' hid ',
+  '^hid ',
+  'banner',
+  'combx',
+  'comment',
+  'com-',
+  'contact',
+  'foot',
+  'footer',
+  'footnote',
+  'gdpr',
+  'masthead',
+  'media',
+  'meta',
+  'outbrain',
+  'promo',
+  'related',
+  'scroll',
+  'share',
+  'shoutbox',
+  'sidebar',
+  'skyscraper',
+  'sponsor',
+  'shopping',
+  'tags',
+  'tool',
+  'widget'
+]);
