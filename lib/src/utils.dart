@@ -13,7 +13,7 @@ Map<html.Element, double> _scoreChange(Map<html.Element, double> scoreMap) {
 }
 
 /// Maps html.Node.*_NODE integer constants to a string name;
-const Map<int, String> HTML_NODE_TYPE_NAME = {
+const Map<int, String> htmlNodeTypeName = {
   html.Node.ATTRIBUTE_NODE: 'ATTRIBUTTE_NODE',
   html.Node.CDATA_SECTION_NODE: 'CDATA_SECTION_NODE',
   html.Node.COMMENT_NODE: 'COMMENT_NODE',

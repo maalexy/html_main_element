@@ -10,7 +10,7 @@ void main() async {
   final document = html_parser.parse(await htmlFile.readAsBytes());
   // Genererate score map and get score for every html element
   final scoreMapReadability = readabilityScore(document.documentElement);
-  printTree(scoreMapReadability, document.documentElement);
+  printTreeString(scoreMapReadability, document.documentElement);
   // Get the best scoring html element
   final bestElemReadability = readabilityMainElement(document.documentElement);
   print(bestElemReadability.outerHtml);
