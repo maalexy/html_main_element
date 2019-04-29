@@ -48,16 +48,16 @@ Map<html.Element, double> _calcReadabilityScore(html.Element root,
 class ReadabilityConfig {
   /// List of the readable tags which should be tested by the algorithm
   final List<String> readableTags;
+
   /// List of positive classes, where elements should have +25 points.
   final List<String> positiveClasses;
+
   /// List of negative classes, where elements should have -25 points.
   final List<String> negativeClasses;
+
   /// Constructor for the configuration class
   ReadabilityConfig(
-      this.readableTags, this.positiveClasses, this.negativeClasses);
-  /// Constant constructor for the configuration class
-  const ReadabilityConfig.constant(
-      this.readableTags, this.positiveClasses, this.negativeClasses);
+      {this.readableTags, this.positiveClasses, this.negativeClasses});
 }
 
 double _localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
@@ -137,59 +137,60 @@ Map<html.Element, double> _propagateScore(
 }
 
 /// Default configuration for the readability algorithm.
-const ReadabilityConfig defaultReadabilityConfig = ReadabilityConfig.constant([
-  // readableTags
-  'p',
-  'div',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'td',
-  'pre'
-], [
-  // positiveClasses
-  'article',
-  'body',
-  'content',
-  'entry',
-  'hentry',
-  'h-entry',
-  'main',
-  'page',
-  'pagination',
-  'post',
-  'text',
-  'blog',
-  'story'
-], [
-  // negativeClasses
-  'hidden',
-  ' hid ',
-  'banner',
-  'combx',
-  'comment',
-  'com-',
-  'contact',
-  'foot',
-  'footer',
-  'footnote',
-  'gdpr',
-  'masthead',
-  'media',
-  'meta',
-  'outbrain',
-  'promo',
-  'related',
-  'scroll',
-  'share',
-  'shoutbox',
-  'sidebar',
-  'skyscraper',
-  'sponsor',
-  'shopping',
-  'tags',
-  'tool',
-  'widget'
-]);
+final ReadabilityConfig defaultReadabilityConfig = ReadabilityConfig(
+  readableTags: [
+    'p',
+    'div',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'td',
+    'pre',
+  ],
+  positiveClasses: [
+    'article',
+    'body',
+    'content',
+    'entry',
+    'hentry',
+    'h-entry',
+    'main',
+    'page',
+    'pagination',
+    'post',
+    'text',
+    'blog',
+    'story',
+  ],
+  negativeClasses: [
+    'hidden',
+    ' hid ',
+    'banner',
+    'combx',
+    'comment',
+    'com-',
+    'contact',
+    'foot',
+    'footer',
+    'footnote',
+    'gdpr',
+    'masthead',
+    'media',
+    'meta',
+    'outbrain',
+    'promo',
+    'related',
+    'scroll',
+    'share',
+    'shoutbox',
+    'sidebar',
+    'skyscraper',
+    'sponsor',
+    'shopping',
+    'tags',
+    'tool',
+    'widget',
+  ],
+);
