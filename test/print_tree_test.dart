@@ -1,4 +1,4 @@
-import 'package:MainTextHTML/src/print_tree.dart';
+import 'package:html_main_element/src/print_tree.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:test/test.dart';

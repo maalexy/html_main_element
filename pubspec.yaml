@@ -1,15 +1,14 @@
-name: MainTextHTML
-description: A starting point for Dart libraries or applications.
-# version: 1.0.0
-# homepage: https://www.example.com
-# author: stlsnk <email@example.com>
+name: html_main_element
+description: Detects the main element of a HTML web page, which represents the core article of that page
+version: 1.0.0
+homepage: https://github.com/maalexy/html_main_element
+author: Alexy Marcell <alexy.marcell@hotmail.com>
 
 environment:
   sdk: '>=2.1.0 <3.0.0'
 
 dependencies:
-  html: ^0.13.4+1
-#  path: ^1.4.1
+  html: ^0.13.0
 
 dev_dependencies:
   pedantic: ^1.0.0

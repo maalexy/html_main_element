@@ -1,24 +1,26 @@
-// TODO: Change this.
+# html_main_element
 
-A library for Dart developers.
-
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+Detects the main element of a HTML web page, which represents the core article of that page 
+using a similar algorithm to [Readability](https://github.com/mozilla/readability). 
 
 ## Usage
 
 A simple usage example:
 
 ```dart
-import 'package:MainTextHTML/MainTextHTML.dart';
+import 'dart:io';
+import 'package:html/parser.dart' as html_parser;
 
-main() {
-  var awesome = new Awesome();
+import 'package:html_main_element/html_main_element.dart';
+
+void main() async {
+  // Load and parse html document
+  final htmlFile = File('test/local/index.html');
+  final document = html_parser.parse(await htmlFile.readAsBytes());
+  // Genererate score map and get score for every html element
+  final scoreMapReadability = readabilityScore(document.documentElement);
+  // Get the best scoring html element
+  final bestElemReadability = readabilityMainElement(document.documentElement);
+  print(bestElemReadability.outerHtml);
 }
 ```
-
-## Features and bugs
-
-Please file feature requests and bugs at the [issue tracker][tracker].
-
-[tracker]: http://example.com/issues/replaceme

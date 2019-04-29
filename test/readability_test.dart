@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:html/parser.dart' as html_parser;
-import 'package:MainTextHTML/src/readability.dart';
-import 'package:MainTextHTML/src/utils.dart';
+import 'package:html_main_element/src/readability.dart';
+import 'package:html_main_element/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {
