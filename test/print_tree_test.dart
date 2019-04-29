@@ -5,16 +5,16 @@ import 'package:test/test.dart';
 
 _hashTree(Element x) {
   final map = <Element, int>{};
-  for(final child in x.children) {
+  for (final child in x.children) {
     map.addAll(_hashTree(child));
   }
-  map[x] = x.hashCode;
+  map[x] = x.outerHtml.hashCode;
   return map;
 }
 
 _textTree(Element x) {
   final map = <Element, String>{};
-  for(final child in x.children) {
+  for (final child in x.children) {
     map.addAll(_textTree(child));
   }
   map[x] = x.text;
@@ -23,7 +23,6 @@ _textTree(Element x) {
 
 void main() {
   group('Typetests', () {
-
     const htmlText = '''
     <html>
       <head>
@@ -43,14 +42,77 @@ void main() {
 
     final document = parse(htmlText);
 
-    setUp(() {
-    });
+    setUp(() {});
 
     test('Print hashes', () {
       final hashes = _hashTree(document.documentElement);
-      printTree(hashes, document.documentElement);
+      printTreeString(hashes, document.documentElement);
+      final hashTreeString = buildTreeString(hashes, document.documentElement);
+      expect(
+          hashTreeString,
+          '<html html>: 106303632\n'
+          ' <html head>: 231538776\n'
+          '  <html title>: 935009207\n'
+          ' <html body>: 5890739\n'
+          '  <html h1>: 177406581\n'
+          '  <html div>: 1038066922\n'
+          '   <html p>: 251805602\n'
+          '    <html b>: 1012741316\n'
+          '   <html p>: 972134644\n'
+          '   <html p>: 175085301\n'
+          '    <html i>: 346194556\n'
+          '   <html p>: 82410424\n'
+          '');
+    });
+    test('Print texts', () {
       final texts = _textTree(document.documentElement);
-      printTree(texts, document.documentElement);
+      printTreeString(texts, document.documentElement);
+      final textTreeString = buildTreeString(texts, document.documentElement);
+      expect(
+          textTreeString,
+          '<html html>: \n'
+          '        Very best car story.\n'
+          '      \n'
+          '      \n'
+          '        The story of my car\n'
+          '        \n'
+          '          I once had a car.\n'
+          '          I bought it from a car store.\n'
+          '          But then I sold it.\n'
+          '          Now I don\'t have a car.\n'
+          '        \n'
+          '      \n'
+          '    \n'
+          '    \n'
+          ' <html head>: \n'
+          '        Very best car story.\n'
+          '      \n'
+          '  <html title>: Very best car story.\n'
+          ' <html body>: \n'
+          '        The story of my car\n'
+          '        \n'
+          '          I once had a car.\n'
+          '          I bought it from a car store.\n'
+          '          But then I sold it.\n'
+          '          Now I don\'t have a car.\n'
+          '        \n'
+          '      \n'
+          '    \n'
+          '    \n'
+          '  <html h1>: The story of my car\n'
+          '  <html div>: \n'
+          '          I once had a car.\n'
+          '          I bought it from a car store.\n'
+          '          But then I sold it.\n'
+          '          Now I don\'t have a car.\n'
+          '        \n'
+          '   <html p>: I once had a car.\n'
+          '    <html b>: had\n'
+          '   <html p>: I bought it from a car store.\n'
+          '   <html p>: But then I sold it.\n'
+          '    <html i>: I sold it.\n'
+          '   <html p>: Now I don\'t have a car.\n'
+          '');
     });
   });
 }
