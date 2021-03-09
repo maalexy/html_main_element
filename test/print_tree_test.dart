@@ -45,9 +45,9 @@ void main() {
     setUp(() {});
 
     test('Print hashes', () {
-      final hashes = _hashTree(document.documentElement);
-      printTreeString(hashes, document.documentElement);
-      final hashTreeString = buildTreeString(hashes, document.documentElement);
+      final hashes = _hashTree(document.documentElement!);
+      printTreeString(hashes, document.documentElement!);
+      final hashTreeString = buildTreeString(hashes, document.documentElement!);
       expect(
           hashTreeString,
           '<html html>: 106303632\n'
@@ -65,9 +65,9 @@ void main() {
           '');
     });
     test('Print texts', () {
-      final texts = _textTree(document.documentElement);
-      printTreeString(texts, document.documentElement);
-      final textTreeString = buildTreeString(texts, document.documentElement);
+      final texts = _textTree(document.documentElement!);
+      printTreeString(texts, document.documentElement!);
+      final textTreeString = buildTreeString(texts, document.documentElement!);
       expect(
           textTreeString,
           '<html html>: \n'

@@ -12,7 +12,7 @@ void main() {
     test('local/index.html high score test', () async {
       final htmlFile = File('test/local/index.html');
       final document = html_parser.parse(await htmlFile.readAsBytes());
-      final scoreMap = readabilityScore(document.documentElement);
+      final scoreMap = readabilityScore(document.documentElement!);
       final bestElem = highestScoringElement(scoreMap);
       //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');
@@ -22,7 +22,7 @@ void main() {
     test('local/origo.html high score test', () async {
       final htmlFile = File('test/local/origo.html');
       final document = html_parser.parse(await htmlFile.readAsBytes());
-      final scoreMap = readabilityScore(document.documentElement);
+      final scoreMap = readabilityScore(document.documentElement!);
       final bestElem = highestScoringElement(scoreMap);
       //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');

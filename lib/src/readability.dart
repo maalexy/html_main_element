@@ -17,7 +17,7 @@ import 'utils.dart';
 ///  - +Sum/(3*level) of every child's score at level deep
 
 Map<html.Element, double> readabilityScore(html.Element root,
-    [ReadabilityConfig conf]) {
+    [ReadabilityConfig? conf]) {
   final scoreMap = _calcReadabilityScore(root, conf);
   _propagateScore(root, scoreMap);
   return scoreMap;
@@ -26,12 +26,12 @@ Map<html.Element, double> readabilityScore(html.Element root,
 /// Returns the highest scoring element under root
 /// using readability algorithm with conf configuration.
 html.Element readabilityMainElement(html.Element root,
-    [ReadabilityConfig conf]) {
+    [ReadabilityConfig? conf]) {
   return highestScoringElement(readabilityScore(root, conf));
 }
 
 Map<html.Element, double> _calcReadabilityScore(html.Element root,
-    [ReadabilityConfig conf]) {
+    [ReadabilityConfig? conf]) {
   var scoreMap = <html.Element, double>{};
   final rscore = _localReadabilityScore(root, conf); // root score
   scoreMap[root] = rscore;
@@ -47,29 +47,29 @@ Map<html.Element, double> _calcReadabilityScore(html.Element root,
 /// Class and tag names should be lowercase characters
 class ReadabilityConfig {
   /// List of the readable tags which should be tested by the algorithm
-  final List<String> readableTags;
+  final List<String>? readableTags;
 
   /// List of positive classes, where elements should have +25 points.
-  final List<String> positiveClasses;
+  final List<String>? positiveClasses;
 
   /// List of negative classes, where elements should have -25 points.
-  final List<String> negativeClasses;
+  final List<String>? negativeClasses;
 
   /// Constructor for the configuration class
   ReadabilityConfig(
       {this.readableTags, this.positiveClasses, this.negativeClasses});
 }
 
-double _localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
+double _localReadabilityScore(html.Element node, [ReadabilityConfig? conf]) {
   conf ??= defaultReadabilityConfig;
-  if (!conf.readableTags.contains(node.localName.toLowerCase())) {
+  if (!conf.readableTags!.contains(node.localName!.toLowerCase())) {
     return 0;
   }
 
   var intexts = "";
   for (final cnode in node.nodes) {
     if (cnode.nodeType == html.Node.TEXT_NODE) {
-      intexts += cnode.text.trim();
+      intexts += cnode.text!.trim();
     }
   }
 
@@ -81,10 +81,10 @@ double _localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
 
   var score = 1.0;
   for (final cls in node.classes) {
-    if (conf.positiveClasses.contains(cls.toLowerCase())) {
+    if (conf.positiveClasses!.contains(cls.toLowerCase())) {
       score += 25;
     }
-    if (conf.negativeClasses.contains(cls.toLowerCase())) {
+    if (conf.negativeClasses!.contains(cls.toLowerCase())) {
       score -= 25;
     }
   }
@@ -111,16 +111,16 @@ double _localReadabilityScore(html.Element node, [ReadabilityConfig conf]) {
 Map<html.Element, double> _propagateScore(
     html.Element node, Map<html.Element, double> scoreMap) {
   // Send score up
-  final score = scoreMap[node];
+  final score = scoreMap[node]!;
   var level = 1;
   var cnode = node.parent;
   while (cnode != null && scoreMap.containsKey(cnode)) {
     if (1 == level) {
-      scoreMap[cnode] += score;
+      scoreMap[cnode] = scoreMap[cnode]! + score;
     } else if (2 == level) {
-      scoreMap[cnode] += score / 2;
+      scoreMap[cnode] = scoreMap[cnode]! + score / 2;
     } else {
-      scoreMap[cnode] += score / (3 * level);
+      scoreMap[cnode] = scoreMap[cnode]! + score / (3 * level);
     }
     print(node);
     print(cnode);
