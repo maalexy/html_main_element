@@ -17,7 +17,7 @@ void main() {
       //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');
       print('${bestElem.outerHtml}');
-      expect(bestElem.classes.contains("cikk-torzs"), true);
+      expect(bestElem.classes.contains('cikk-torzs'), true);
     });
     test('local/origo.html high score test', () async {
       final htmlFile = File('test/local/origo.html');
@@ -27,7 +27,7 @@ void main() {
       //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');
       print('${bestElem.outerHtml}');
-      expect(bestElem.id.contains("article-text"), true);
+      expect(bestElem.id.contains('article-text'), true);
     });
     /*///
     test('local/index.html diff score test', () async {

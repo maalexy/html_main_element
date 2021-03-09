@@ -66,7 +66,7 @@ double _localReadabilityScore(html.Element node, [ReadabilityConfig? conf]) {
     return 0;
   }
 
-  var intexts = "";
+  var intexts = '';
   for (final cnode in node.nodes) {
     if (cnode.nodeType == html.Node.TEXT_NODE) {
       intexts += cnode.text!.trim();

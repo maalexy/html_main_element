@@ -3,7 +3,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:test/test.dart';
 
-_hashTree(Element x) {
+Map<Element, int> _hashTree(Element x) {
   final map = <Element, int>{};
   for (final child in x.children) {
     map.addAll(_hashTree(child));
@@ -12,7 +12,7 @@ _hashTree(Element x) {
   return map;
 }
 
-_textTree(Element x) {
+Map<Element, String> _textTree(Element x) {
   final map = <Element, String>{};
   for (final child in x.children) {
     map.addAll(_textTree(child));
