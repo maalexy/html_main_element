@@ -1,6 +1,6 @@
 name: html_main_element
 description: Detects the main element of a HTML web page, which represents the core article of that page
-version: 1.0.1
+version: 2.0.0
 homepage: https://github.com/maalexy/html_main_element
 author: Alexy Marcell <alexy.marcell@hotmail.com>
 
