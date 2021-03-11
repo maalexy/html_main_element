@@ -46,7 +46,7 @@ void main() {
 
     test('Print hashes', () {
       final hashes = _hashTree(document.documentElement!);
-      printTreeString(hashes, document.documentElement!);
+      //printTreeString(hashes, document.documentElement!);
       final hashTreeString = buildTreeString(hashes, document.documentElement!);
       expect(
           hashTreeString,
@@ -66,7 +66,7 @@ void main() {
     });
     test('Print texts', () {
       final texts = _textTree(document.documentElement!);
-      printTreeString(texts, document.documentElement!);
+      //printTreeString(texts, document.documentElement!);
       final textTreeString = buildTreeString(texts, document.documentElement!);
       expect(
           textTreeString,

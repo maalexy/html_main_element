@@ -16,7 +16,7 @@ void main() {
       final bestElem = highestScoringElement(scoreMap);
       //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');
-      print('${bestElem.outerHtml}');
+      //print('${bestElem.outerHtml}');
       expect(bestElem.classes.contains('cikk-torzs'), true);
     });
     test('local/origo.html high score test', () async {
@@ -26,7 +26,7 @@ void main() {
       final bestElem = highestScoringElement(scoreMap);
       //printTree(scoreMap, document.documentElement);
       //print('$bestElem, ${score}, ${highScoreElem.hashCode}');
-      print('${bestElem.outerHtml}');
+      //print('${bestElem.outerHtml}');
       expect(bestElem.id.contains('article-text'), true);
     });
     /*///
