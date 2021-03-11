@@ -5,6 +5,7 @@ void printTreeString(Map<Element, dynamic> tree, Element root) {
   print(buildTreeString(tree, root));
 }
 
+/// Recursively generates the String representation of the html tree
 String buildTreeString(Map<Element, dynamic> tree, Element elem,
     [int depth = 0]) {
   var par = '';

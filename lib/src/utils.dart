@@ -4,7 +4,7 @@ Map<html.Element, double> _scoreChange(Map<html.Element, double> scoreMap) {
   final scoreDiff = <html.Element, double>{};
   for (final entry in scoreMap.entries) {
     if (entry.key.parent != null) {
-      scoreDiff[entry.key] = entry.value - scoreMap[entry.key.parent];
+      scoreDiff[entry.key] = entry.value - scoreMap[entry.key.parent!]!;
     } else {
       scoreDiff[entry.key] = entry.value;
     }

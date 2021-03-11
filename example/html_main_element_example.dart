@@ -8,8 +8,8 @@ void main() async {
   final htmlFile = File('test/local/index.html');
   final document = html_parser.parse(await htmlFile.readAsBytes());
   // Genererate score map and get score for every html element
-  final scoreMapReadability = readabilityScore(document.documentElement);
+  final scoreMapReadability = readabilityScore(document.documentElement!);
   // Get the best scoring html element
-  final bestElemReadability = readabilityMainElement(document.documentElement);
+  final bestElemReadability = readabilityMainElement(document.documentElement!);
   print(bestElemReadability.outerHtml);
 }

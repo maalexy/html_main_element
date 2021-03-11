@@ -1,15 +1,15 @@
 name: html_main_element
 description: Detects the main element of a HTML web page, which represents the core article of that page
-version: 1.0.1
+version: 2.0.0
 homepage: https://github.com/maalexy/html_main_element
 author: Alexy Marcell <alexy.marcell@hotmail.com>
 
 environment:
-  sdk: '>=2.1.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  html: '>=0.13.0 <0.15.0'
+  html: ^0.15.0
 
 dev_dependencies:
-  pedantic: ^1.0.0
-  test: ^1.0.0
+  pedantic: ^1.11.0
+  test: ^1.16.7
