@@ -129,8 +129,6 @@ Map<html.Element, double> _propagateScore(
     } else {
       scoreMap[cnode] = scoreMap[cnode]! + score / (3 * level);
     }
-    //print(node);
-    //print(cnode);
     cnode = cnode.parent;
     level += 1;
   }
