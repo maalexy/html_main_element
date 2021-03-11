@@ -18,7 +18,8 @@ import 'utils.dart';
 
 Map<html.Element, double> readabilityScore(html.Element root,
     [ReadabilityConfig? conf]) {
-  final scoreMap = _calcReadabilityScore(root, conf);
+  final scoreMap =
+      _calcReadabilityScore(root, conf ??= defaultReadabilityConfig);
   _propagateScore(root, scoreMap);
   return scoreMap;
 }
@@ -30,14 +31,14 @@ html.Element readabilityMainElement(html.Element root,
   return highestScoringElement(readabilityScore(root, conf));
 }
 
-Map<html.Element, double> _calcReadabilityScore(html.Element root,
-    [ReadabilityConfig? conf]) {
+Map<html.Element, double> _calcReadabilityScore(
+    html.Element root, ReadabilityConfig conf) {
   var scoreMap = <html.Element, double>{};
   final rscore = _localReadabilityScore(root, conf); // root score
   scoreMap[root] = rscore;
   for (final child in root.children) {
     // call for all children
-    final childMap = _calcReadabilityScore(child);
+    final childMap = _calcReadabilityScore(child, conf);
     scoreMap.addAll(childMap);
   }
   return scoreMap;
@@ -60,8 +61,7 @@ class ReadabilityConfig {
       {this.readableTags, this.positiveClasses, this.negativeClasses});
 }
 
-double _localReadabilityScore(html.Element node, [ReadabilityConfig? conf]) {
-  conf ??= defaultReadabilityConfig;
+double _localReadabilityScore(html.Element node, ReadabilityConfig conf) {
   if (!conf.readableTags!.contains(node.localName!.toLowerCase())) {
     return 0;
   }
