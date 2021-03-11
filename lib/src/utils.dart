@@ -1,17 +1,5 @@
 import 'package:html/dom.dart' as html;
 
-Map<html.Element, double> _scoreChange(Map<html.Element, double> scoreMap) {
-  final scoreDiff = <html.Element, double>{};
-  for (final entry in scoreMap.entries) {
-    if (entry.key.parent != null) {
-      scoreDiff[entry.key] = entry.value - scoreMap[entry.key.parent!]!;
-    } else {
-      scoreDiff[entry.key] = entry.value;
-    }
-  }
-  return scoreDiff;
-}
-
 /// Maps html.Node.*_NODE integer constants to a string name;
 const Map<int, String> htmlNodeTypeName = {
   html.Node.ATTRIBUTE_NODE: 'ATTRIBUTTE_NODE',
